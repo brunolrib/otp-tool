@@ -1,0 +1,42 @@
+[package]
+name = "otp-tool"
+version = "0.1.0"
+edition = "2021"
+proc-macro = true
+
+[[bin]]
+name = "otp-tool"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+anyhow = "1.0"
+which = "6.0"
+tempfile = "3.10"
+aes-gcm = "0.10.3"
+keyring = "3.6.3"
+serde = { version = "1.0.219", features = ["derive"] }
+bincode = "1.3.3"
+confy = { version = "1.0.0", default-features = false, features = ["yaml_conf"] }
+system-deps = "7.0.5"
+arboard = "3.2.0"
+serde_json = "1.0.142"
+thiserror = "2.0.14"
+log = "0.4.27"
+env_logger = "0.11.8"
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.12"
+assert_cmd = "2.0"
+predicates = "3.0"
+serial_test = "3.0"
+criterion = "0.5"
+rand = "0.8"
+
+[[bench]]
+name = "benchmarks"
+harness = false
+
+[package.metadata.system-deps]
+oathtool = { version = "2.6.13" }
