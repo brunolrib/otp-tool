@@ -2,7 +2,6 @@
 name = "otp-tool"
 version = "0.1.0"
 edition = "2021"
-proc-macro = true
 
 [[bin]]
 name = "otp-tool"
@@ -24,6 +23,7 @@ serde_json = "1.0.142"
 thiserror = "2.0.14"
 log = "0.4.27"
 env_logger = "0.11.8"
+rpassword = "7.4.0"
 
 [dev-dependencies]
 tokio-test = "0.4"
@@ -33,10 +33,6 @@ predicates = "3.0"
 serial_test = "3.0"
 criterion = "0.5"
 rand = "0.8"
-
-[[bench]]
-name = "benchmarks"
-harness = false
 
 [package.metadata.system-deps]
 oathtool = { version = "2.6.13" }

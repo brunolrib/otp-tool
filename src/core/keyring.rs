@@ -2,54 +2,51 @@ use anyhow::{Context, Result, Error};
 use keyring::{Entry};
 use crate::{commands::args::{PassArgs}, core::config::APP_NAME};
 
-fn save_password(service_name: &str, password: &str) -> Result<()> {
-    let entry = Entry::new(APP_NAME, service_name).with_context(
-        || format!("Failed to create keyring entry for service: {}", service_name)
+fn save_password(password: &str) -> Result<()> {
+    let entry = Entry::new(APP_NAME, APP_NAME).with_context(
+        || "Failed to create keyring entry"
     )?;
     entry.set_password(password).with_context(
-        || format!("Failed to set password for service: {}", service_name)
+        || "Failed to set password"
     )?;
     Ok(())
 }
 
-fn read_password(service_name: &str) -> Result<String> {
-    println!("Enter your password for {}:", service_name);
-    let mut input = String::new();
-    std::io::stdin().read_line(&mut input)
-        .expect("Failed to read line");
-    let password = input.trim().to_string();
-    save_password(service_name, &password)?;
+fn read_password() -> Result<String> {
+    let password = rpassword::prompt_password("Enter your password:").unwrap();
+    save_password(&password)?;
 
     Ok(password)
-}
-
-pub fn delete_password(args: &PassArgs) -> Result<()> {
-    handle_password(args)?;
-
-    let entry = Entry::new(APP_NAME, &args.service_name)?;
-    entry.delete_credential().with_context(
-        || format!("Failed to delete password for service: {}", args.service_name)
-    )?;
-    Ok(())
 }
 
 pub fn handle_password(args: &PassArgs) -> Result<String> {
     let entry = Entry::new(APP_NAME, APP_NAME).with_context(
         || format!("Failed to create keyring entry for app: {}", APP_NAME)
     )?;
-    let mut password: String = entry.get_password().unwrap_or("".to_string());
+    let password_input: String;
+    let saved_password: String = entry.get_password().unwrap_or("".to_string());
 
-    if args.use_stored.unwrap_or(false) && password.is_empty() {
-        return Err(Error::msg("No stored password found."));
-    } else if password.is_empty() {
-        password = read_password(&args.service_name)?;
+    if args.use_stored.unwrap_or(false) {
+        if saved_password.is_empty() {
+            return Err(Error::msg("No stored password found."));
+        } else {
+            return Ok(saved_password)
+        }
+    } 
+
+    if args.password.is_some() {
+        password_input = args.password.as_deref().unwrap_or("").to_string();
+    } else {
+        password_input = read_password()?;
     }
 
-    if password != args.password.as_deref().unwrap_or("") {
+    println!("password_input: {}", password_input);
+    println!("saved_password: {}", saved_password);
+    if password_input != saved_password {
         return Err(Error::msg("Passwords do not match"));
     }
 
-    Ok(password)
+    Ok(password_input)
 }
 
 #[cfg(test)]
