@@ -3,7 +3,12 @@ use std::{env, fs::File, io::{Read, Write}};
 use crate::core::config::{APP_NAME};
 
 pub fn read_bin(file_path: &str) -> Result<Vec<u8>> {
+    if !exists(file_path)? {
+        return Ok(Vec::new());
+    }
+
     let mut file = File::open(file_path)?;
+    println!("file: {}", file_path);
     let mut contents = Vec::new();
     file.read_to_end(&mut contents).with_context(
         || format!("Failed to read from file: {}", file_path)

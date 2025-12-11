@@ -39,10 +39,8 @@ pub fn handle_password(args: &PassArgs) -> Result<String> {
     } else {
         password_input = read_password()?;
     }
-
-    println!("password_input: {}", password_input);
-    println!("saved_password: {}", saved_password);
-    if password_input != saved_password {
+    
+    if !saved_password.is_empty() && password_input != saved_password {
         return Err(Error::msg("Passwords do not match"));
     }
 

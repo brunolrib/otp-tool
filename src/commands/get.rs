@@ -14,9 +14,13 @@ impl GetSecret {
     pub fn run(&self) -> Result<()> {
         let password = keyring::handle_password(&self.args)?;
         let app_dir = file_system::get_app_data_dir()?;
-        let secret_path = app_dir + format!("{}.bin", self.args.service_name).as_str();
+        let secret_path = app_dir + format!("/{}.bin", self.args.service_name).as_str();
 
         let secret_bin = file_system::read_bin(&secret_path)?;
+        if secret_bin.is_empty() {
+            return Err(anyhow::anyhow!("Secret not found: {}", self.args.service_name));
+        }
+
         let encrypted = bincode::deserialize::<encryption::EncryptedSecret>(&secret_bin)?;
         let secret = encryption::decrypt(&encrypted, &password).unwrap();
 
